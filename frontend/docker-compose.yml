@@ -1,0 +1,17 @@
+# -- append manually inside services: block --
+# board-service:
+#   build:
+#     context: ./services/board-service
+#     dockerfile: Dockerfile
+#   environment:
+#     - PORT=3002
+#     - MONGO_URI=mongodb://mongo:27017/pinboard-board
+#     - JWT_SECRET=${JWT_SECRET}
+#     - CORS_ORIGIN=${CORS_ORIGIN}
+#     - NODE_ENV=production
+#   depends_on:
+#     mongo:
+#       condition: service_healthy
+#   networks:
+#     - pinboard-net
+#   restart: unless-stopped

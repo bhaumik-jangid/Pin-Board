@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      # Give Jenkins access to host Docker socket
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+    networks:
+      - pinboard-net
+    restart: unless-stopped
+
+volumes:
+  jenkins-data:
+
+networks:
+  pinboard-net:
+    driver: bridge

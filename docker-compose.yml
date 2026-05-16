@@ -1,0 +1,169 @@
+version: '3.9'
+
+# ── Shared service defaults ──────────────────────────────────
+x-service-defaults: &defaults
+  restart: unless-stopped
+  networks:
+    - pinboard-net
+
+# ── Shared logging ───────────────────────────────────────────
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+
+  # ── NGINX — only public-facing port ───────────────────────
+  nginx:
+    <<: *defaults
+    <<: *logging
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      frontend:
+        condition: service_started
+      auth-service:
+        condition: service_healthy
+      board-service:
+        condition: service_healthy
+      realtime-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Frontend ──────────────────────────────────────────────
+  frontend:
+    <<: *defaults
+    <<: *logging
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    image: ${REGISTRY:-pinboard}/frontend:${IMAGE_TAG:-latest}
+
+  # ── Auth service ──────────────────────────────────────────
+  auth-service:
+    <<: *defaults
+    <<: *logging
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    image: ${REGISTRY:-pinboard}/auth-service:${IMAGE_TAG:-latest}
+    environment:
+      PORT:           "3001"
+      MONGO_URI:      mongodb://mongo:27017/${MONGO_AUTH_DB:-pinboard-auth}
+      JWT_SECRET:     ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN:    ${CORS_ORIGIN:-http://localhost}
+      NODE_ENV:       production
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  # ── Board service ─────────────────────────────────────────
+  board-service:
+    <<: *defaults
+    <<: *logging
+    build:
+      context: ./services/board-service
+      dockerfile: Dockerfile
+    image: ${REGISTRY:-pinboard}/board-service:${IMAGE_TAG:-latest}
+    environment:
+      PORT:       "3002"
+      MONGO_URI:  mongodb://mongo:27017/${MONGO_BOARD_DB:-pinboard-board}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      NODE_ENV:   production
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  # ── Realtime service ──────────────────────────────────────
+  realtime-service:
+    <<: *defaults
+    <<: *logging
+    build:
+      context: ./services/realtime-service
+      dockerfile: Dockerfile
+    image: ${REGISTRY:-pinboard}/realtime-service:${IMAGE_TAG:-latest}
+    environment:
+      PORT:        "3003"
+      JWT_SECRET:  ${JWT_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      NODE_ENV:    production
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/"]
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  # ── MongoDB — Docker Hub pull ──────────────────────────────
+  mongo:
+    <<: *defaults
+    <<: *logging
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-pinboard}
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+
+  # ── Redis — Docker Hub pull ────────────────────────────────
+  redis:
+    <<: *defaults
+    <<: *logging
+    image: redis:7-alpine
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# ── Named volumes ────────────────────────────────────────────
+volumes:
+  mongo-data:
+    driver: local
+  redis-data:
+    driver: local
+  jenkins-data:
+    driver: local
+
+# ── Network ───────────────────────────────────────────────────
+networks:
+  pinboard-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
