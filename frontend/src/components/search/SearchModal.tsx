@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ArrowRight } from 'lucide-react';
@@ -53,13 +54,13 @@ export function SearchModal({ boardId, onClose, onJumpTo }: Props) {
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  return (
+  return createPortal(
     <>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
         style={{
-          position: 'fixed', inset: 0, zIndex: 300,
+          position: 'fixed', inset: 0, zIndex: 9000,
           background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)',
         }}
       />
@@ -70,7 +71,7 @@ export function SearchModal({ boardId, onClose, onJumpTo }: Props) {
         transition={{ type: 'spring', stiffness: 380, damping: 28 }}
         style={{
           position: 'fixed', top: '12%', left: '50%',
-          transform: 'translateX(-50%)', zIndex: 301,
+          transform: 'translateX(-50%)', zIndex: 9001,
           background: 'rgba(255,255,255,0.98)',
           borderRadius: '20px', width: 520,
           boxShadow: '0 32px 80px rgba(0,0,0,0.28)',
@@ -220,6 +221,7 @@ export function SearchModal({ boardId, onClose, onJumpTo }: Props) {
           </AnimatePresence>
         </div>
       </motion.div>
-    </>
+    </>,
+    document.body
   );
 }

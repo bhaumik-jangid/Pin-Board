@@ -7,6 +7,8 @@ import { NotePin } from '@/components/pins/NotePin';
 import { NoteToolbar } from './NoteToolbar';
 import { TaskList } from './TaskList';
 import { useNoteStore } from '@/stores/note.store';
+import { socketEmit }     from '@/lib/socketEmit';
+import { SOCKET_EVENTS }   from '@/lib/socketEvents';
 import { boardApi } from '@/services/boardApi';
 import { cn } from '@/lib/utils';
 
@@ -41,6 +43,7 @@ export function StickyNote({ note, boardId, isSelected, onSelect }: Props) {
     saveTimer.current = setTimeout(async () => {
       updateNote(note._id, { content: val });
       await boardApi.updateNote(boardId, note._id, { content: val });
+      socketEmit(SOCKET_EVENTS.NOTE_UPDATED, { boardId, noteId: note._id, updates: { content: val } });
     }, 600);
   }, [boardId, note._id, updateNote]);
 
@@ -60,6 +63,7 @@ export function StickyNote({ note, boardId, isSelected, onSelect }: Props) {
     setTimeout(() => {
       removeNote(note._id);
       boardApi.deleteNote(boardId, note._id).catch(console.error);
+      socketEmit(SOCKET_EVENTS.NOTE_DELETED, { boardId, noteId: note._id });
     }, 700);
   };
 
@@ -78,6 +82,7 @@ export function StickyNote({ note, boardId, isSelected, onSelect }: Props) {
         Math.abs(d.y - dragStartPos.current.y) < 3) return;
     updateNote(note._id, { x: d.x, y: d.y });
     await boardApi.updatePosition(boardId, note._id, d.x, d.y);
+    socketEmit(SOCKET_EVENTS.NOTE_MOVED, { boardId, noteId: note._id, x: d.x, y: d.y });
   };
 
   const handleResizeStop = async (

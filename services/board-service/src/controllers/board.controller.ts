@@ -23,7 +23,15 @@ export const getMyBoards = async (req: AuthRequest, res: Response, next: NextFun
 export const getBoard = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const board = await Board.findById(req.params.boardId);
-    if (!board) { res.status(404).json({ success: false, message: 'Board not found' }); return; }
+    if (!board) {
+      res.status(404).json({ success: false, message: 'Board not found' });
+      return;
+    }
+    /*
+      Any authenticated user can read any board.
+      This is the collab model — boards are shared by link.
+      Owner check is only enforced for destructive operations.
+    */
     res.json({ success: true, data: { board } });
   } catch (err) { next(err); }
 };

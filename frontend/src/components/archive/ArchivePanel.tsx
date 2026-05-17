@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, RotateCcw, Trash2, Archive } from 'lucide-react';
@@ -31,14 +32,14 @@ export function ArchivePanel({ boardId, onClose }: Props) {
     } catch (e) { console.error(e); }
   };
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
         style={{
-          position: 'fixed', inset: 0, zIndex: 200,
+          position: 'fixed', inset: 0, zIndex: 9000,
           background: 'rgba(0,0,0,0.35)',
         }}
       />
@@ -51,7 +52,7 @@ export function ArchivePanel({ boardId, onClose }: Props) {
         transition={{ type: 'spring', stiffness: 320, damping: 30 }}
         style={{
           position: 'fixed', top: 0, right: 0, bottom: 0,
-          width: 360, zIndex: 201,
+          width: 360, zIndex: 9001,
           background: 'rgba(255,255,255,0.97)',
           backdropFilter: 'blur(20px)',
           boxShadow: '-8px 0 40px rgba(0,0,0,0.18)',
@@ -155,6 +156,7 @@ export function ArchivePanel({ boardId, onClose }: Props) {
           })}
         </div>
       </motion.div>
-    </>
+    </>,
+    document.body
   );
 }

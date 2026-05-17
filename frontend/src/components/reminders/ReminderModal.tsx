@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Bell, Trash2 } from 'lucide-react';
@@ -44,13 +45,13 @@ export function ReminderModal({ boardId, noteId, current, onClose }: Props) {
     } finally { setSaving(false); }
   };
 
-  return (
+  return createPortal(
     <>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
         style={{
-          position: 'fixed', inset: 0, zIndex: 300,
+          position: 'fixed', inset: 0, zIndex: 9000,
           background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
         }}
       />
@@ -61,7 +62,7 @@ export function ReminderModal({ boardId, noteId, current, onClose }: Props) {
         transition={{ type: 'spring', stiffness: 340, damping: 26 }}
         style={{
           position: 'fixed', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', zIndex: 301,
+          transform: 'translate(-50%, -50%)', zIndex: 9001,
           background: 'rgba(255,255,255,0.97)',
           borderRadius: '20px', width: 340,
           boxShadow: '0 24px 80px rgba(0,0,0,0.25)',
@@ -164,6 +165,7 @@ export function ReminderModal({ boardId, noteId, current, onClose }: Props) {
           </div>
         </div>
       </motion.div>
-    </>
+    </>,
+    document.body
   );
 }

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Zap } from 'lucide-react';
@@ -98,13 +99,13 @@ export function TemplatesModal({ boardId, onClose }: Props) {
     finally { setLoading(null); onClose(); }
   };
 
-  return (
+  return createPortal(
     <>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
         style={{
-          position: 'fixed', inset: 0, zIndex: 300,
+          position: 'fixed', inset: 0, zIndex: 9000,
           background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)',
         }}
       />
@@ -115,7 +116,7 @@ export function TemplatesModal({ boardId, onClose }: Props) {
         transition={{ type: 'spring', stiffness: 340, damping: 26 }}
         style={{
           position: 'fixed', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)', zIndex: 301,
+          transform: 'translate(-50%, -50%)', zIndex: 9001,
           background: 'rgba(255,255,255,0.97)',
           borderRadius: '22px', width: 520,
           boxShadow: '0 32px 80px rgba(0,0,0,0.25)',
@@ -191,6 +192,7 @@ export function TemplatesModal({ boardId, onClose }: Props) {
           ))}
         </div>
       </motion.div>
-    </>
+    </>,
+    document.body
   );
 }

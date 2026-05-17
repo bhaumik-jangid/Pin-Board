@@ -14,41 +14,29 @@ export function BoardCanvas({ boardId }: Props) {
 
   return (
     /*
-      position: relative + explicit w/h is REQUIRED for react-rnd bounds="parent".
-      Without it Rnd measures the wrong container and snaps to 0,0.
+      Must be EXACTLY 3000×2000 to match InfiniteCanvas inner div.
+      react-rnd bounds="parent" measures THIS element.
+      If this is viewport-sized (~900×600) notes stop at the viewport edge.
     */
     <div
       onClick={handleClick}
       style={{
         position: 'absolute',
         top: 0, left: 0,
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
+        width: 3000,
+        height: 2000,
+        overflow: 'visible',
       }}
     >
-      {/*
-        Inner container is position:relative — THIS is what Rnd measures for "parent".
-        It must be the same size as the outer container.
-      */}
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          overflow: 'visible',
-        }}
-      >
-        {notes.map((note) => (
-          <StickyNote
-            key={note._id}
-            note={note}
-            boardId={boardId}
-            isSelected={selectedNoteId === note._id}
-            onSelect={() => selectNote(note._id)}
-          />
-        ))}
-      </div>
+      {notes.map((note) => (
+        <StickyNote
+          key={note._id}
+          note={note}
+          boardId={boardId}
+          isSelected={selectedNoteId === note._id}
+          onSelect={() => selectNote(note._id)}
+        />
+      ))}
     </div>
   );
 }
