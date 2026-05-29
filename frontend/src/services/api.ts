@@ -1,10 +1,16 @@
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth.store';
 
+/*
+  In production (Docker): window.location.origin = http://localhost
+  NGINX routes /api/* to the correct service.
+  In dev: Vite proxy handles /api/* → localhost:3001/3002
+  Both cases: baseURL = '/api' works correctly.
+*/
 export const api = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
-  timeout: 10000,
+  timeout: 15000,
 });
 
 api.interceptors.request.use((config) => {
@@ -16,19 +22,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    /*
-      Only force-logout on 401 if:
-      1. It is NOT the /auth/me or /auth/login endpoint
-         (those 401s are expected and handled locally)
-      2. We actually have a token stored (not a fresh page load)
-    */
-    const url     = error.config?.url ?? '';
+    const url      = error.config?.url ?? '';
     const hasToken = !!useAuthStore.getState().token;
-    const isAuthRoute = url.includes('/auth/login') ||
-                        url.includes('/auth/register') ||
-                        url.includes('/auth/me');
+    const isAuth   = url.includes('/auth/login') ||
+                     url.includes('/auth/register') ||
+                     url.includes('/auth/me');
 
-    if (error.response?.status === 401 && hasToken && !isAuthRoute) {
+    if (error.response?.status === 401 && hasToken && !isAuth) {
       useAuthStore.getState().clearAuth();
       window.location.href = '/login';
     }

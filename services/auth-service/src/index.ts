@@ -8,6 +8,8 @@ import authRoutes from './routes/auth.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
+app.set('strict routing', false);
+app.set('case sensitive routing', false);
 const PORT = process.env.PORT || 3001;
 
 app.use(helmet());

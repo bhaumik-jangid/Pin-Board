@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
@@ -13,7 +13,11 @@ const registerSchema = z.object({
   password: z.string().min(6, 'Min 6 characters'),
 });
 
-type RegisterForm = z.infer<typeof registerSchema>;
+type RegisterForm = {
+  username: string;
+  email: string;
+  password: string;
+};
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -24,9 +28,11 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterForm>({ resolver: zodResolver(registerSchema) });
+  } = useForm<RegisterForm, undefined, RegisterForm>({
+    resolver: zodResolver(registerSchema as never),
+  });
 
-  const onSubmit = async (data: RegisterForm) => {
+  const onSubmit: SubmitHandler<RegisterForm> = async (data) => {
     setServerError('');
     try {
       const res = await authApi.register(data);

@@ -1,14 +1,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --prefer-offline
+RUN npm install
 COPY . .
-RUN npm run build
+RUN npx tsc
 
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/dist         ./dist
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY package.json ./
 RUN addgroup -S pinboard && adduser -S pinboard -G pinboard

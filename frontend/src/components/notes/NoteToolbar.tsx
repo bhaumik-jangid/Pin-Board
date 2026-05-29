@@ -26,74 +26,110 @@ export function NoteToolbar({
   return (
     <>
       <motion.div
-        initial={{ opacity:0, y:-8, scale:0.88 }}
-        animate={{ opacity:1, y:0,  scale:1    }}
-        exit={{   opacity:0, y:-6, scale:0.92  }}
-        transition={{ duration: 0.14 }}
+        initial={{ opacity: 0, y: -8, scale: 0.88 }}
+        animate={{ opacity: 1, y: 0,  scale: 1    }}
+        exit={{   opacity: 0, y: -6,  scale: 0.92 }}
+        transition={{ duration: 0.13 }}
         onMouseDown={(e) => e.stopPropagation()}
         style={{
-          position: 'absolute', top: -48, left: '50%',
-          transform: 'translateX(-50%)', zIndex: 30,
-          display: 'flex', alignItems: 'center', gap: '4px',
-          background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)',
-          borderRadius: '14px', padding: '6px 10px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+          position: 'absolute',
+          top: -52, left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 30, pointerEvents: 'auto',
+          display: 'flex', alignItems: 'center', gap: '5px',
+          background: 'rgba(255,255,255,0.98)',
+          backdropFilter: 'blur(14px)',
+          borderRadius: '16px', padding: '7px 11px',
+          boxShadow: '0 6px 24px rgba(0,0,0,0.20), 0 1px 4px rgba(0,0,0,0.10)',
           border: '1px solid rgba(0,0,0,0.07)',
-          pointerEvents: 'auto', whiteSpace: 'nowrap',
+          whiteSpace: 'nowrap',
         }}
       >
         {/* Color swatches */}
         {COLORS.map((c) => (
           <button key={c} onClick={() => onColorChange(c)} style={{
-            width: 16, height: 16, borderRadius: '50%', border: 'none',
-            backgroundColor: NOTE_COLORS[c].bg, cursor: 'pointer',
-            outline: c === currentColor ? `2px solid ${NOTE_COLORS[c].pin}` : '2px solid transparent',
-            outlineOffset: '1px', transition: 'transform 0.12s',
+            width: 17, height: 17, borderRadius: '50%',
+            border: 'none', cursor: 'pointer',
+            backgroundColor: NOTE_COLORS[c].bg,
+            boxShadow: `inset 0 0 0 1px rgba(0,0,0,0.12)`,
+            outline: c === currentColor
+              ? `2.5px solid ${NOTE_COLORS[c].pin}`
+              : '2.5px solid transparent',
+            outlineOffset: '1.5px',
+            transition: 'transform 0.12s',
+            flexShrink: 0,
           }}
-            onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.3)')}
+            onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.30)')}
             onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
           />
         ))}
-        <div style={{ width: 1, height: 16, background: 'rgba(0,0,0,0.12)', margin: '0 2px' }}/>
+
+        <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.10)', margin: '0 2px' }}/>
+
         {/* Reminder */}
-        <button
+        <IconBtn
+          title="Reminder"
+          active={!!reminderAt}
+          activeColor="#22c55e"
           onClick={() => setShowReminder(true)}
-          title="Set reminder"
-          style={{
-            background: reminderAt ? 'rgba(34,197,94,0.12)' : 'transparent',
-            border: 'none', cursor: 'pointer', color: reminderAt ? '#22c55e' : '#666',
-            padding: '4px', borderRadius: '6px', display: 'flex',
-          }}
         >
           <Bell size={13}/>
-        </button>
+        </IconBtn>
+
         {/* Duplicate */}
-        <button onClick={onDuplicate} title="Duplicate" style={{
-          background: 'transparent', border: 'none', cursor: 'pointer',
-          color: '#666', padding: '4px', borderRadius: '6px', display: 'flex',
-        }}>
+        <IconBtn title="Duplicate" onClick={onDuplicate}>
           <Copy size={13}/>
-        </button>
+        </IconBtn>
+
         {/* Delete */}
-        <button onClick={onDelete} title="Delete" style={{
-          background: 'transparent', border: 'none', cursor: 'pointer',
-          color: '#ef4444', padding: '4px', borderRadius: '6px', display: 'flex',
-        }}>
+        <IconBtn title="Delete" danger onClick={onDelete}>
           <Trash2 size={13}/>
-        </button>
+        </IconBtn>
       </motion.div>
 
-      {/* Reminder modal — portal-like, rendered here */}
       <AnimatePresence>
         {showReminder && (
           <ReminderModal
-            boardId={boardId}
-            noteId={noteId}
+            boardId={boardId} noteId={noteId}
             current={reminderAt}
             onClose={() => setShowReminder(false)}
           />
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+function IconBtn({
+  children, onClick, title, danger, active, activeColor,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  title?: string;
+  danger?: boolean;
+  active?: boolean;
+  activeColor?: string;
+}) {
+  const [hov, setHov] = useState(false);
+  const color = danger
+    ? (hov ? '#dc2626' : '#ef4444')
+    : active
+    ? (activeColor ?? '#333')
+    : (hov ? '#222' : '#666');
+
+  return (
+    <button
+      onClick={onClick} title={title}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: active ? `${activeColor}18` : hov ? 'rgba(0,0,0,0.06)' : 'transparent',
+        border: 'none', cursor: 'pointer', color,
+        padding: '5px', borderRadius: '7px',
+        display: 'flex', transition: 'all 0.13s',
+      }}
+    >
+      {children}
+    </button>
   );
 }

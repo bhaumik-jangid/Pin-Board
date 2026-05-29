@@ -19,11 +19,15 @@ export default function LoginPage() {
   const setAuth = useAuthStore((s) => s.setAuth);
   const [serverError, setServerError] = useState('');
 
+  const form = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema as any),
+  });
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
+  } = form;
 
   const onSubmit = async (data: LoginForm) => {
     setServerError('');

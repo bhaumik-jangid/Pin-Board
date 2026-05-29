@@ -2,7 +2,7 @@
  * Thin singleton so any component can emit socket events
  * without prop-drilling through BoardCanvas → StickyNote.
  */
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 
 let _socket: Socket | null = null;
 

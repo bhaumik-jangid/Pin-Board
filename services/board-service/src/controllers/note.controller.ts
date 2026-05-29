@@ -58,8 +58,8 @@ export const createNote = async (req: AuthRequest, res: Response, next: NextFunc
       content: req.body.content ?? '',
       x:       req.body.x       ?? 120,
       y:       req.body.y       ?? 120,
-      width:   req.body.width   ?? 200,
-      height:  req.body.height  ?? 200,
+      width:   req.body.width   ?? 220,
+      height:  req.body.height  ?? 220,
       zIndex:  (highestZ?.zIndex ?? 0) + 1,
     });
     res.status(201).json({ success: true, data: { note } });

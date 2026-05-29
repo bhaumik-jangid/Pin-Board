@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import { AuthTokenPayload } from '@pinboard/shared-types';
+import { AuthTokenPayload } from '../types';
 
 export interface AuthSocket extends Socket {
   user?: AuthTokenPayload;

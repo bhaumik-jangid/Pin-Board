@@ -7,6 +7,8 @@ import mongoose from 'mongoose';
 import boardRoutes from './routes/board.routes';
 
 const app = express();
+app.set('strict routing', false);
+app.set('case sensitive routing', false);
 const PORT = process.env.PORT || 3002;
 
 app.use(helmet());

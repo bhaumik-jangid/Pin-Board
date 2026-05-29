@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, RotateCcw, Trash2, Archive } from 'lucide-react';
+import { X, RotateCcw, Archive } from 'lucide-react';
 import { boardApi } from '@/services/boardApi';
 import { useNoteStore } from '@/stores/note.store';
 import type { Note } from '@/types/note.types';
@@ -119,7 +119,7 @@ export function ArchivePanel({ boardId, onClose }: Props) {
                 <div style={{
                   width: 32, height: 32, borderRadius: '8px', flexShrink: 0,
                   backgroundColor: colors.bg,
-                  border: `1px solid ${colors.border}`,
+                  border: `1px solid ${colors.line}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '14px',
                 }}>

@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, MapPin, Navigation } from 'lucide-react';
 import { useNoteStore } from '@/stores/note.store';
 import { NOTE_COLORS, NOTE_TYPE_META } from '@/lib/noteColors';

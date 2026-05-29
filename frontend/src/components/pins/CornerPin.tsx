@@ -3,87 +3,95 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { CornerIndex } from '@/stores/board.store';
 
 interface Props {
-  index: CornerIndex;
+  index:    CornerIndex;
   inserted: boolean;
   onRemove: () => void;
-  /* corner positions passed from parent */
-  style: React.CSSProperties;
+  style:    React.CSSProperties;
 }
 
-/*
-  Corner positions rotate the pin so it looks pushed in at an angle.
-  0=top-left, 1=top-right, 2=bottom-left, 3=bottom-right
-*/
-const CORNER_ROTATE: Record<CornerIndex, number> = {
-  0: -20,
-  1:  20,
-  2: -160,
-  3:  160,
+/* Each corner pin tilts inward naturally */
+const TILT: Record<CornerIndex, number> = {
+  0: -12, 1: 12, 2: 12, 3: -12,
 };
 
 export function CornerPin({ index, inserted, onRemove, style }: Props) {
-  const [hovered, setHovered] = useState(false);
+  const [hov, setHov] = useState(false);
 
   return (
     <AnimatePresence>
       {inserted && (
-        <motion.div
-          key={`corner-pin-${index}`}
+        <motion.button
+          key={`cpin-${index}`}
+          onClick={onRemove}
+          onMouseEnter={() => setHov(true)}
+          onMouseLeave={() => setHov(false)}
+          title="Click to remove pin"
           style={{
-            position: 'absolute',
-            zIndex: 50,
-            cursor: 'pointer',
-            filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.55))',
+            position: 'absolute', zIndex: 50,
+            background: 'none', border: 'none',
+            cursor: 'pointer', padding: 0,
+            filter: `drop-shadow(0 6px 14px rgba(0,0,0,0.60))
+                     drop-shadow(0 2px 4px rgba(0,0,0,0.40))`,
             ...style,
           }}
-          initial={{ scale: 0.4, opacity: 0, rotate: CORNER_ROTATE[index] - 45 }}
+          initial={{ scale: 0.3, opacity: 0, rotate: TILT[index] - 30 }}
           animate={{
-            scale: hovered ? 1.12 : 1,
+            scale: hov ? 1.10 : 1,
             opacity: 1,
-            rotate: CORNER_ROTATE[index],
-            y: hovered ? -4 : 0,
+            rotate: TILT[index],
+            y: hov ? -5 : 0,
           }}
           exit={{
-            scale: 0.6,
-            opacity: 0,
-            y: -60,
-            rotate: CORNER_ROTATE[index] + (index < 2 ? -40 : 40),
-            transition: { type: 'spring', stiffness: 200, damping: 14 },
+            scale: 0.5, opacity: 0, y: -70,
+            rotate: TILT[index] + (index < 2 ? -35 : 35),
+            transition: { type: 'spring', stiffness: 220, damping: 16 },
           }}
-          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-          onClick={onRemove}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          title="Click to remove pin"
+          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
         >
-          <PinSVG size={52} />
-        </motion.div>
+          <CornerPinSVG />
+        </motion.button>
       )}
     </AnimatePresence>
   );
 }
 
-function PinSVG({ size }: { size: number }) {
+function CornerPinSVG() {
   return (
-    <svg width={size} height={size + 20} viewBox="0 0 52 72" fill="none">
-      {/* Pin head — metallic gradient effect via layered circles */}
-      <circle cx="26" cy="22" r="20" fill="#9a9a9a" />
-      <circle cx="26" cy="22" r="20" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" />
+    <svg width="56" height="68" viewBox="0 0 56 68" fill="none">
+      {/* Outer rim */}
+      <circle cx="28" cy="24" r="23" fill="url(#cg1)"/>
+      <circle cx="28" cy="24" r="23" fill="none" stroke="rgba(0,0,0,0.30)" strokeWidth="1.5"/>
       {/* Mid ring */}
-      <circle cx="26" cy="22" r="14" fill="#b8b8b8" />
+      <circle cx="28" cy="24" r="16" fill="url(#cg2)"/>
       {/* Inner dome */}
-      <circle cx="26" cy="22" r="9"  fill="#cecece" />
-      {/* Specular highlight top-left */}
-      <ellipse cx="20" cy="16" rx="5" ry="3.5" fill="white" fillOpacity="0.55" />
-      {/* Rim shadow bottom */}
-      <path d="M10 34 Q26 40 42 34" stroke="rgba(0,0,0,0.2)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <circle cx="28" cy="24" r="10" fill="url(#cg3)"/>
+      {/* Highlight */}
+      <ellipse cx="22" cy="17" rx="6" ry="3.5" fill="white" fillOpacity="0.55"/>
+      {/* Rim shadow arc */}
+      <path d="M10 40 Q28 48 46 40" stroke="rgba(0,0,0,0.18)"
+            strokeWidth="2" fill="none" strokeLinecap="round"/>
       {/* Needle */}
-      <line x1="26" y1="42" x2="26" y2="72"
-            stroke="#707070" strokeWidth="5" strokeLinecap="round" />
-      <line x1="26" y1="42" x2="26" y2="72"
-            stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round" />
-      {/* Needle tip shadow */}
-      <circle cx="26" cy="71" r="2.5" fill="rgba(0,0,0,0.35)" />
+      <line x1="28" y1="47" x2="28" y2="68"
+            stroke="#5a5a5a" strokeWidth="5.5" strokeLinecap="round"/>
+      <line x1="28" y1="47" x2="28" y2="68"
+            stroke="rgba(255,255,255,0.18)" strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="28" cy="67" r="3" fill="rgba(0,0,0,0.40)"/>
+
+      <defs>
+        <radialGradient id="cg1" cx="40%" cy="35%" r="65%">
+          <stop offset="0%"   stopColor="#d8d8d8"/>
+          <stop offset="45%"  stopColor="#a0a0a0"/>
+          <stop offset="100%" stopColor="#606060"/>
+        </radialGradient>
+        <radialGradient id="cg2" cx="40%" cy="35%" r="65%">
+          <stop offset="0%"   stopColor="#e0e0e0"/>
+          <stop offset="100%" stopColor="#909090"/>
+        </radialGradient>
+        <radialGradient id="cg3" cx="35%" cy="30%" r="65%">
+          <stop offset="0%"   stopColor="#f0f0f0"/>
+          <stop offset="100%" stopColor="#b0b0b0"/>
+        </radialGradient>
+      </defs>
     </svg>
   );
 }

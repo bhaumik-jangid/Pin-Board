@@ -5,7 +5,7 @@ import { Search, X, ArrowRight } from 'lucide-react';
 import { boardApi } from '@/services/boardApi';
 import type { Note, NoteType, NoteColor } from '@/types/note.types';
 import { NOTE_COLORS, NOTE_TYPE_META } from '@/lib/noteColors';
-import { useNoteStore } from '@/stores/note.store';
+// import { useNoteStore } from '@/stores/note.store';
 
 interface Props {
   boardId: string;
@@ -23,7 +23,7 @@ export function SearchModal({ boardId, onClose, onJumpTo }: Props) {
   const [results,  setResults]  = useState<Note[]>([]);
   const [loading,  setLoading]  = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounce = useRef<ReturnType<typeof setTimeout>>();
+  const debounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 

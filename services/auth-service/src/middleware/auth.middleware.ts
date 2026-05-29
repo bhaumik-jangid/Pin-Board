@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt.utils';
-import { AuthTokenPayload } from '@pinboard/shared-types';
+import { AuthTokenPayload } from '../types';
 
 export interface AuthRequest extends Request {
   user?: AuthTokenPayload;

@@ -1,49 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Caveat:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --cork-bg: #c8a96e;
-    --cork-shadow: rgba(100, 70, 20, 0.3);
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background-color: #fdf8f0;
-    color: #1a1a1a;
-    overflow: hidden;
-  }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+  background: #1a1209;
 }
 
-@layer utilities {
-  .cork-board {
-    background-color: #c8a96e;
-    background-image:
-      radial-gradient(ellipse at 20% 30%, rgba(180,130,60,0.4) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 70%, rgba(150,100,40,0.3) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%, rgba(200,160,90,0.2) 0%, transparent 70%);
-  }
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
 
-  .glass-panel {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-  }
-
-  .note-paper {
-    font-family: 'Caveat', cursive;
-  }
-}
-
-@layer utilities {
-  .note-container {
-    overflow: visible !important;
-  }
-}
+.note-font { font-family: 'Caveat', cursive; }
